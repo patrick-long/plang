@@ -104,6 +104,8 @@ export function tokenize(sourceCode: string): Token[] {
 		}
 	}
 
+	tokens.push(token("EndFile", TokenType.EndFile));
+
 	return tokens;
 }
 
