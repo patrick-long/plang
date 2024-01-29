@@ -1,0 +1,113 @@
+import fs from "fs";
+
+export enum TokenType {
+	Let,
+	Identifier,
+	Number,
+	Equals,
+	OpenParen,
+	CloseParen,
+	BinaryOperator,
+}
+
+const KEYWORDS: Record<string, TokenType> = {
+	let: TokenType.Let,
+};
+
+export interface Token {
+	char: string;
+	type: TokenType;
+}
+
+function token(char: string = "", type: TokenType): Token {
+	return { char, type };
+}
+
+function isAlphabetic(source: string): boolean {
+	return source.toUpperCase() !== source.toLowerCase();
+}
+
+function isInt(source: string): boolean {
+	const char = source.charCodeAt(0);
+	const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
+
+	return char >= bounds[0] && char <= bounds[1];
+}
+
+function isSkippable(source: string): boolean {
+	return source === "" || source === "\n" || source === "\t" || source === " ";
+}
+
+export function tokenize(sourceCode: string): Token[] {
+	const tokens = new Array<Token>();
+	const src = sourceCode.split("");
+
+	// Build each token until end of file
+	while (src.length > 0) {
+		if (src[0] === "(") {
+			tokens.push(token(src.shift(), TokenType.OpenParen));
+		} else if (src[0] === ")") {
+			tokens.push(token(src.shift(), TokenType.CloseParen));
+		} else if (
+			src[0] === "+" ||
+			src[0] === "-" ||
+			src[0] === "*" ||
+			src[0] === "/"
+		) {
+			tokens.push(token(src.shift(), TokenType.BinaryOperator));
+		} else if (src[0] === "=") {
+			tokens.push(token(src.shift(), TokenType.Equals));
+		} else {
+			// Handle multicharacter tokens (<=, ++, let)
+			// Build number token
+			if (isInt(src[0])) {
+				let num = "";
+
+				while (src.length > 0 && isInt(src[0])) {
+					num += src.shift();
+				}
+
+				tokens.push(token(num, TokenType.Number));
+			}
+			// Build identifier token
+			else if (isAlphabetic(src[0])) {
+				let word = "";
+
+				while (src.length > 0 && isAlphabetic(src[0])) {
+					word += src.shift();
+				}
+
+				// Check for reserved keywords and push reserved keyword
+				const reserved = KEYWORDS[word];
+
+				if (reserved === undefined) {
+					tokens.push(token(word, TokenType.Identifier));
+				} else {
+					tokens.push(token(word, reserved));
+				}
+			}
+			// Skip skippable tokens
+			else if (isSkippable(src[0])) {
+				// Skip the current character
+				src.shift();
+			} else {
+				throw new Error(
+					`Unrecognized character found in source code: "${src[0]}"`
+				);
+			}
+		}
+	}
+
+	return tokens;
+}
+
+const lines = fs
+	.readFileSync("./lexerTest.txt", { encoding: "utf8" })
+	.trim()
+	.split("\r\n");
+
+lines.forEach((line: string) => {
+	for (const token of tokenize(line)) {
+		console.log(token);
+	}
+});
