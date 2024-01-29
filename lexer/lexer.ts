@@ -21,12 +21,12 @@ const KEYWORDS: Record<string, TokenType> = {
 };
 
 export interface Token {
-	char: string;
+	value: string;
 	type: TokenType;
 }
 
-function token(char: string = "", type: TokenType): Token {
-	return { char, type };
+function token(value: string = "", type: TokenType): Token {
+	return { value, type };
 }
 
 function isAlphabetic(source: string): boolean {
