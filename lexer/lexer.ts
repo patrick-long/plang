@@ -1,13 +1,19 @@
 import fs from "fs";
 
 export enum TokenType {
-	Let,
-	Identifier,
+	// Literal Types
 	Number,
+	Identifier,
+
+	// Keywords
+	Let,
+
+	// Grouping & Operators
 	Equals,
 	OpenParen,
 	CloseParen,
 	BinaryOperator,
+	EndFile,
 }
 
 const KEYWORDS: Record<string, TokenType> = {
