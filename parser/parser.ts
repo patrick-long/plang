@@ -20,7 +20,7 @@ export default class Parser {
 		return this.parseExpression();
 	}
 
-	private parseExpression(): Expression {}
+	private parseExpression(): Expression { return {} as Expression }
 
 	private parsePrimaryExpression(): Expression {
 		const token = this.next().type;

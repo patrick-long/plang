@@ -1,3 +1,5 @@
+import process, { stdin as input, stdout as output } from 'node:process';
+import readline from 'node:readline/promises';
 import Parser from "./parser";
 
 async function repl() {
@@ -6,13 +8,16 @@ async function repl() {
 	console.log("Repl v0.1");
 
 	while (true) {
-		// USE READLINE!!! built into Node.js :)
-		// const input =  // TODO: get user input from node
-		// if (!input || input.includes("exit")) {
-		// 	// TODO: stop node server
-		// }
-		// const program = parser.produceAST(input);
-		// console.log({ program });
+		const rl = readline.createInterface({ input, output });
+		const userInput = await rl.question(">");
+		
+		if (!userInput || userInput.includes("exit")) {
+			process.exit(0);
+		}
+
+		const program = parser.produceAST(userInput);
+
+		console.log({ program });
 	}
 }
 
