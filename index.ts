@@ -2,6 +2,11 @@ import process, { stdin as input, stdout as output } from "node:process";
 import readline from "node:readline/promises";
 import Parser from "./parser/parser.ts";
 
+/**
+ * Creates a CLI REPL for user input. Instantiates a new Parser and creates a Program from
+ * user input by calling `parser.produceAST()` with the user's input.
+ * Exits Node process with '0' if successful, and with '1' if an error is caught.
+ */
 async function repl() {
 	const parser = new Parser();
 	const rl = readline.createInterface({ input, output });

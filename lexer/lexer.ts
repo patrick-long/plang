@@ -1,5 +1,3 @@
-import fs from "fs";
-
 export enum TokenType {
 	// Literal Types
 	Number,
@@ -25,14 +23,30 @@ export interface Token {
 	type: TokenType;
 }
 
+/**
+ * Creates and returns Token instance out of value and token params.
+ * @param value
+ * @param type
+ * @returns {Token} token
+ */
 function token(value: string = "", type: TokenType): Token {
 	return { value, type };
 }
 
+/**
+ * Returns true if the `source` string is an alphabetical character. Returns false otherwise.
+ * @param source
+ * @returns {boolean} boolean
+ */
 function isAlphabetic(source: string): boolean {
 	return source.toUpperCase() !== source.toLowerCase();
 }
 
+/**
+ * Returns true if the `source` string is a numeric character. Returns false otherwise.
+ * @param source
+ * @returns {boolean} boolean
+ */
 function isInt(source: string): boolean {
 	const char = source.charCodeAt(0);
 	const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
@@ -40,10 +54,21 @@ function isInt(source: string): boolean {
 	return char >= bounds[0] && char <= bounds[1];
 }
 
+/**
+ * Returns true if the `source` string is a skippable character. Returns false otherwise.
+ * @param source
+ * @returns {boolean} boolean
+ */
 function isSkippable(source: string): boolean {
 	return source === "" || source === "\n" || source === "\t" || source === " ";
 }
 
+/**
+ * Creates an array of Token instances based on the `sourceCode` passed to the function.
+ * @param sourceCode
+ * @returns {Token[]} array of Tokens
+ * @throws {Error} when unrecognized character is found in `sourceCode`
+ */
 export function tokenize(sourceCode: string): Token[] {
 	const tokens = new Array<Token>();
 	const src = sourceCode.split("");

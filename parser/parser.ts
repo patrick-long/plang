@@ -11,15 +11,27 @@ import { tokenize, type Token, TokenType } from "../lexer/lexer.ts";
 export default class Parser {
 	private tokens: Token[] = [];
 
+	/**
+	 * Returns false if the next Token in `tokens` is of type 'EndFile'.
+	 * @returns {boolean} boolean
+	 */
 	private notEndFile(): boolean {
 		return this.tokens[0].type !== TokenType.EndFile;
 	}
 
+	/**
+	 * Parses an expression and returns it as a Statement.
+	 * @returns {Statement} statement
+	 */
 	private statement(): Statement {
 		// TODO: Function declaration statements, try/catch blocks, while loops, et cetera
 		return this.parseExpression();
 	}
 
+	/**
+	 * Parses an additive expression and returns the result.
+	 * @returns {Expression} parsed expression
+	 */
 	private parseExpression(): Expression {
 		return this.parseAdditiveExpression();
 	}
@@ -35,6 +47,11 @@ export default class Parser {
 	// UnaryExpression
 	// PrimaryExpression
 
+	/**
+	 * Parses left side of an expression as a multiplicative expression. Recursively parses
+	 * right side of expression as multiplicative expression if operator is either '+' or '-'.
+	 * @returns {Expression} parsed multiplicative expression
+	 */
 	private parseAdditiveExpression(): Expression {
 		let left = this.parseMultiplicativeExpression();
 
@@ -53,6 +70,11 @@ export default class Parser {
 		return left;
 	}
 
+	/**
+	 * Parses left side of an expression as a primary expression. Recursively parses
+	 * right side of expression as primary expression if operator is '*', '/' or '%'.
+	 * @returns {Expression} parsed primary expression
+	 */
 	private parseMultiplicativeExpression(): Expression {
 		let left = this.parsePrimaryExpression();
 
@@ -75,6 +97,12 @@ export default class Parser {
 		return left;
 	}
 
+	/**
+	 * Parses next token in `tokens` into appropriate expression interface.
+	 * Expression interface options: Identifier, NumericLiteral
+	 * @returns {Expression} primary expression (Identifier, NumericLiteral)
+	 * @throws {Error} when unexpected token is found during parsing
+	 */
 	private parsePrimaryExpression(): Expression {
 		const token = this.next().type;
 
@@ -106,14 +134,29 @@ export default class Parser {
 		}
 	}
 
+	/**
+	 * Returns the token at the front of the `tokens` queue.
+	 * @returns {Token} token
+	 */
 	private next(): Token {
 		return this.tokens[0];
 	}
 
+	/**
+	 * Returns the shifted token from the front of the `tokens` queue.
+	 * @returns {Token} token
+	 */
 	private eat(): Token {
 		return this.tokens.shift();
 	}
 
+	/**
+	 * Parses parenthetical expression by calling `this.parseExpression()` after removing open parenthesis.
+	 * Checks to make sure a close parenthesis is present to match the open parenthesis. Otherwise,
+	 * function will throw an error.
+	 * @returns {Expression} parenthetical expression
+	 * @throws {Error} when no closing parenthesis is found during parsing
+	 */
 	private parentheticalValue(): Expression {
 		const _openParenthesis = this.eat();
 		const expression = this.parseExpression();
@@ -130,6 +173,12 @@ export default class Parser {
 		return expression;
 	}
 
+	/**
+	 * Tokenizes source code until EndFile character is found. Creates a Program out of the
+	 * tokenized source code and returns the Program.
+	 * @param source
+	 * @returns {Program} program
+	 */
 	public produceAST(source: string): Program {
 		this.tokens = tokenize(source);
 
