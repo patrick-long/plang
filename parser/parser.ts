@@ -44,7 +44,9 @@ export default class Parser {
 				return numericLiteral;
 			default:
 				throw new Error(
-					`Unexpected token found during parsing: '${this.next()}'`
+					`Unexpected token found during parsing: '${JSON.stringify(
+						this.next()
+					)}'`
 				);
 		}
 	}

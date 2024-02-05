@@ -9,15 +9,21 @@ async function repl() {
 	console.log("Repl v0.1");
 
 	while (true) {
-		const userInput = await rl.question("> ");
+		try {
+			const userInput = await rl.question("> ");
 
-		if (!userInput || userInput.includes("exit")) {
-			process.exit(0);
+			if (!userInput || userInput.includes("exit")) {
+				console.log("Exiting repl...");
+				process.exit(0);
+			}
+
+			const program = parser.produceAST(userInput);
+
+			console.log(program);
+		} catch (error) {
+			console.error(error);
+			process.exit(1);
 		}
-
-		const program = parser.produceAST(userInput);
-
-		console.log(program);
 	}
 }
 
