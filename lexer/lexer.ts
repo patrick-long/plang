@@ -110,7 +110,7 @@ export function tokenize(sourceCode: string): Token[] {
 }
 
 const lines = fs
-	.readFileSync("./lexerTest.txt", { encoding: "utf8" })
+	.readFileSync("./lexer/tests/lexerTest.txt", { encoding: "utf8" })
 	.trim()
 	.split("\r\n");
 
