@@ -5,8 +5,8 @@ import type {
 	BinaryExpression,
 	NumericLiteral,
 	Identifier,
-} from "../ast/ast";
-import { tokenize, type Token, TokenType } from "../lexer/lexer";
+} from "../ast/ast.ts";
+import { tokenize, type Token, TokenType } from "../lexer/lexer.ts";
 
 export default class Parser {
 	private tokens: Token[] = [];
@@ -20,19 +20,28 @@ export default class Parser {
 		return this.parseExpression();
 	}
 
-	private parseExpression(): Expression { return {} as Expression }
+	private parseExpression(): Expression {
+		return this.parsePrimaryExpression();
+	}
 
 	private parsePrimaryExpression(): Expression {
 		const token = this.next().type;
 
 		switch (token) {
 			case TokenType.Identifier:
-				return { kind: "Identifier", symbol: this.eat().value } as Identifier;
+				const identifier: Identifier = {
+					kind: "Identifier",
+					symbol: this.eat().value,
+				};
+
+				return identifier;
 			case TokenType.Number:
-				return {
+				const numericLiteral: NumericLiteral = {
 					kind: "NumericLiteral",
 					value: parseFloat(this.eat().value),
-				} as NumericLiteral;
+				};
+
+				return numericLiteral;
 			default:
 				throw new Error(
 					`Unexpected token found during parsing: '${this.next()}'`

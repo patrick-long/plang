@@ -4,12 +4,12 @@ import Parser from "./parser/parser.ts";
 
 async function repl() {
 	const parser = new Parser();
+	const rl = readline.createInterface({ input, output });
 
 	console.log("Repl v0.1");
 
 	while (true) {
-		const rl = readline.createInterface({ input, output });
-		const userInput = await rl.question(">");
+		const userInput = await rl.question("> ");
 
 		if (!userInput || userInput.includes("exit")) {
 			process.exit(0);
@@ -17,7 +17,7 @@ async function repl() {
 
 		const program = parser.produceAST(userInput);
 
-		console.log({ program });
+		console.log(program);
 	}
 }
 
