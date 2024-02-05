@@ -108,14 +108,3 @@ export function tokenize(sourceCode: string): Token[] {
 
 	return tokens;
 }
-
-const lines = fs
-	.readFileSync("./lexer/tests/lexerTest.txt", { encoding: "utf8" })
-	.trim()
-	.split("\r\n");
-
-lines.forEach((line: string) => {
-	for (const token of tokenize(line)) {
-		console.log(token);
-	}
-});
