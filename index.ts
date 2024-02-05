@@ -1,6 +1,7 @@
 import process, { stdin as input, stdout as output } from "node:process";
 import readline from "node:readline/promises";
 import Parser from "./parser/parser.ts";
+import { evaluate } from "./runtime/interpreter.ts";
 
 /**
  * Creates a CLI REPL for user input. Instantiates a new Parser and creates a Program from
@@ -24,7 +25,11 @@ async function repl() {
 
 			const program = parser.produceAST(userInput);
 
-			console.log(JSON.stringify(program, null, 2));
+			console.log("program", JSON.stringify(program, null, 2));
+
+			const result = evaluate(program);
+
+			console.log("result", JSON.stringify(result, null, 2));
 		} catch (error) {
 			console.error(error);
 			console.log("Exiting repl...");
