@@ -21,7 +21,58 @@ export default class Parser {
 	}
 
 	private parseExpression(): Expression {
-		return this.parsePrimaryExpression();
+		return this.parseAdditiveExpression();
+	}
+
+	// // Orders of Precedence (in order of parsing)
+	// ComparisonExpression
+	// LogicalExpression
+	// FunctionCall
+	// MemberExpression
+	// AssignmentExpression
+	// AdditiveExpression
+	// MultiplicativeExpression
+	// UnaryExpression
+	// PrimaryExpression
+
+	private parseAdditiveExpression(): Expression {
+		let left = this.parseMultiplicativeExpression();
+
+		while (this.next().value === "+" || this.next().value === "-") {
+			const operator = this.eat().value;
+			const right = this.parseMultiplicativeExpression();
+
+			left = {
+				kind: "BinaryExpression",
+				left,
+				right,
+				operator,
+			} as BinaryExpression;
+		}
+
+		return left;
+	}
+
+	private parseMultiplicativeExpression(): Expression {
+		let left = this.parsePrimaryExpression();
+
+		while (
+			this.next().value === "*" ||
+			this.next().value === "/" ||
+			this.next().value === "%"
+		) {
+			const operator = this.eat().value;
+			const right = this.parsePrimaryExpression();
+
+			left = {
+				kind: "BinaryExpression",
+				left,
+				right,
+				operator,
+			} as BinaryExpression;
+		}
+
+		return left;
 	}
 
 	private parsePrimaryExpression(): Expression {
@@ -42,6 +93,10 @@ export default class Parser {
 				};
 
 				return numericLiteral;
+			case TokenType.OpenParen:
+				const parentheticalValue = this.parentheticalValue();
+
+				return parentheticalValue;
 			default:
 				throw new Error(
 					`Unexpected token found during parsing: '${JSON.stringify(
@@ -57,6 +112,22 @@ export default class Parser {
 
 	private eat(): Token {
 		return this.tokens.shift();
+	}
+
+	private parentheticalValue(): Expression {
+		const _openParenthesis = this.eat();
+		const expression = this.parseExpression();
+		const closeParenthesis = this.eat();
+
+		if (!closeParenthesis || closeParenthesis.type !== TokenType.CloseParen) {
+			throw new Error(
+				`Unexpected token found during parsing: '${JSON.stringify(
+					closeParenthesis
+				)}'. Expected ')'.`
+			);
+		}
+
+		return expression;
 	}
 
 	public produceAST(source: string): Program {

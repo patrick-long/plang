@@ -19,9 +19,10 @@ async function repl() {
 
 			const program = parser.produceAST(userInput);
 
-			console.log(program);
+			console.log(JSON.stringify(program, null, 2));
 		} catch (error) {
 			console.error(error);
+			console.log("Exiting repl...");
 			process.exit(1);
 		}
 	}
