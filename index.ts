@@ -1,6 +1,6 @@
-import process, { stdin as input, stdout as output } from 'node:process';
-import readline from 'node:readline/promises';
-import Parser from "./parser";
+import process, { stdin as input, stdout as output } from "node:process";
+import readline from "node:readline/promises";
+import Parser from "./parser/parser.ts";
 
 async function repl() {
 	const parser = new Parser();
@@ -10,7 +10,7 @@ async function repl() {
 	while (true) {
 		const rl = readline.createInterface({ input, output });
 		const userInput = await rl.question(">");
-		
+
 		if (!userInput || userInput.includes("exit")) {
 			process.exit(0);
 		}
