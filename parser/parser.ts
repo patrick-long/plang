@@ -5,7 +5,6 @@ import type {
 	BinaryExpression,
 	NumericLiteral,
 	Identifier,
-	NullLiteral,
 } from "../ast/ast.ts";
 import { tokenize, type Token, TokenType } from "../lexer/lexer.ts";
 
@@ -122,11 +121,6 @@ export default class Parser {
 				};
 
 				return numericLiteral;
-			case TokenType.Null:
-				this.eat(); // advance past 'null' keyword
-				const nullLiteral: NullLiteral = { kind: "NullLiteral", value: "null" };
-
-				return nullLiteral;
 			case TokenType.OpenParen:
 				const parentheticalValue = this.parentheticalValue();
 
