@@ -1,15 +1,20 @@
-import { RuntimeValue, NumberValue, NullValue } from "./values.ts";
+import { RuntimeValue, NumberValue, NullValue, MAKE_NULL } from "./values.ts";
 import {
 	BinaryExpression,
+	Identifier,
 	NumericLiteral,
 	Program,
 	Statement,
 } from "../ast/ast.ts";
+import Environment from "./environment.ts";
 
-export function evaluate(astNode: Statement): RuntimeValue {
+export function evaluate(
+	astNode: Statement,
+	environment: Environment
+): RuntimeValue {
 	switch (astNode.kind) {
 		case "Program":
-			return evaluateProgram(astNode as Program);
+			return evaluateProgram(astNode as Program, environment);
 		case "NumericLiteral":
 			const numberValue: NumberValue = {
 				type: "number",
@@ -17,15 +22,10 @@ export function evaluate(astNode: Statement): RuntimeValue {
 			};
 
 			return numberValue;
-		case "NullLiteral":
-			const nullValue: NullValue = {
-				type: "null",
-				value: "null",
-			};
-
-			return nullValue;
+		case "Identifier":
+			return evaluateIdentifier(astNode as Identifier, environment);
 		case "BinaryExpression":
-			return evaluateBinaryExpression(astNode as BinaryExpression);
+			return evaluateBinaryExpression(astNode as BinaryExpression, environment);
 		default:
 			throw new Error(
 				`This AST Node has not yet been setup for interpretation: '${JSON.stringify(
@@ -35,22 +35,39 @@ export function evaluate(astNode: Statement): RuntimeValue {
 	}
 }
 
-function evaluateProgram(program: Program): RuntimeValue {
+function evaluateProgram(
+	program: Program,
+	environment: Environment
+): RuntimeValue {
 	const { body } = program;
 	let lastEvaluted: RuntimeValue = { type: "null", value: "null" } as NullValue;
 
 	for (const node of body) {
-		lastEvaluted = evaluate(node);
+		lastEvaluted = evaluate(node, environment);
 	}
 
 	return lastEvaluted;
 }
 
-function evaluateBinaryExpression(
-	binaryOperation: BinaryExpression
+function evaluateIdentifier(
+	identifer: Identifier,
+	environment: Environment
 ): RuntimeValue {
-	const leftOperand = evaluate(binaryOperation.left) as NumberValue;
-	const rightOperand = evaluate(binaryOperation.right) as NumberValue;
+	return environment.lookupVariable(identifer.symbol);
+}
+
+function evaluateBinaryExpression(
+	binaryOperation: BinaryExpression,
+	environment: Environment
+): RuntimeValue {
+	const leftOperand = evaluate(
+		binaryOperation.left,
+		environment
+	) as NumberValue;
+	const rightOperand = evaluate(
+		binaryOperation.right,
+		environment
+	) as NumberValue;
 
 	if (leftOperand.type === "number" && rightOperand.type === "number") {
 		return evaluateNumericBinaryExpression(
@@ -60,8 +77,7 @@ function evaluateBinaryExpression(
 		);
 	}
 
-	const nullValue: NullValue = { type: "null", value: "null" };
-	return nullValue;
+	return MAKE_NULL();
 }
 
 function evaluateNumericBinaryExpression(
