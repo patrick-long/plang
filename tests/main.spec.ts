@@ -6,6 +6,7 @@ import Environment from "../runtime/environment.ts";
 import { evaluate } from "../runtime/interpreter.ts";
 
 test("main test file should be read and used as input to create a new program", () => {
+	let result;
 	const parser = new Parser();
 	const environment = new Environment();
 
@@ -14,15 +15,30 @@ test("main test file should be read and used as input to create a new program", 
 
 	try {
 		const program = parser.produceAST(input);
-		const result = evaluate(program, environment);
-		console.log(result);
+		result = evaluate(program, environment);
 	} catch (error) {
 		console.error(error);
 		console.log("Exiting repl...");
 		process.exit(1);
 	}
 
-	// const expectedResult =
+	const expectedProperties = new Map();
+	expectedProperties.set("x", { type: "number", value: 100 });
+	expectedProperties.set("y", { type: "number", value: 32 });
+	expectedProperties.set("foo", { type: "number", value: 45 });
 
-	// expect(results).toEqual(expectedResult);
+	const complexProperties = new Map();
+	complexProperties.set("bar", { type: "boolean", value: true });
+
+	expectedProperties.set("complex", {
+		type: "object",
+		properties: complexProperties,
+	});
+
+	const expectedResult = {
+		type: "object",
+		properties: expectedProperties,
+	};
+
+	expect(result).toEqual(expectedResult);
 });
