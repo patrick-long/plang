@@ -3,7 +3,6 @@ import readline from "node:readline/promises";
 import Parser from "./parser/parser.ts";
 import { evaluate } from "./runtime/interpreter.ts";
 import Environment from "./runtime/environment.ts";
-import { MAKE_BOOL, MAKE_NULL, MAKE_NUMBER } from "./runtime/values.ts";
 
 /**
  * Creates a CLI REPL for user input. Instantiates a new Parser and creates a Program from
@@ -12,12 +11,7 @@ import { MAKE_BOOL, MAKE_NULL, MAKE_NUMBER } from "./runtime/values.ts";
  */
 async function repl() {
 	const parser = new Parser();
-
 	const environment = new Environment();
-	environment.declareVariable("x", MAKE_NUMBER(100), true);
-	environment.declareVariable("true", MAKE_BOOL(), true);
-	environment.declareVariable("false", MAKE_BOOL(false), true);
-	environment.declareVariable("null", MAKE_NULL(), true);
 
 	const rl = readline.createInterface({ input, output });
 
@@ -33,8 +27,6 @@ async function repl() {
 			}
 
 			const program = parser.produceAST(userInput);
-			console.log("program", JSON.stringify(program, null, 2));
-
 			const result = evaluate(program, environment);
 
 			console.log("result", JSON.stringify(result, null, 2));
