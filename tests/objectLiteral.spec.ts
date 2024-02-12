@@ -10,7 +10,7 @@ test("objectLiteral.txt test file should be read and used as input to create a n
 	const parser = new Parser();
 	const environment = new Environment();
 
-	const filePath = path.resolve(__dirname, "fixtures/mainTest.txt");
+	const filePath = path.resolve(__dirname, "fixtures/objectLiterals.txt");
 	const input = fs.readFileSync(filePath, { encoding: "utf8" });
 
 	try {
