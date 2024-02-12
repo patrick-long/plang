@@ -2,6 +2,7 @@ import { RuntimeValue, NumberValue } from "./values.ts";
 import {
 	AssignmentExpression,
 	BinaryExpression,
+	CallExpression,
 	Identifier,
 	NumericLiteral,
 	ObjectLiteral,
@@ -19,6 +20,7 @@ import {
 	evaluateIdentifier,
 	evaluateAssignmentExpression,
 	evaluateObjectExpression,
+	evaluateCallExpression,
 } from "./eval/expressions.ts";
 
 export function evaluate(
@@ -37,6 +39,9 @@ export function evaluate(
 			return numberValue;
 		case "ObjectLiteral":
 			return evaluateObjectExpression(astNode as ObjectLiteral, environment);
+		case "MemberExpression":
+		case "CallExpression":
+			return evaluateCallExpression(astNode as CallExpression, environment);
 		case "Identifier":
 			return evaluateIdentifier(astNode as Identifier, environment);
 		case "BinaryExpression":

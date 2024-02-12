@@ -1,4 +1,11 @@
-export type ValueType = "null" | "number" | "boolean" | "object";
+import Environment from "./environment.ts";
+
+export type ValueType =
+	| "null"
+	| "number"
+	| "boolean"
+	| "object"
+	| "native-function";
 
 export interface RuntimeValue {
 	type: ValueType;
@@ -24,6 +31,16 @@ export interface ObjectValue extends RuntimeValue {
 	properties: Map<string, RuntimeValue>;
 }
 
+export type FunctionCall = (
+	args: RuntimeValue[],
+	environment: Environment
+) => RuntimeValue;
+
+export interface NativeFunctionValue extends RuntimeValue {
+	type: "native-function";
+	call: FunctionCall;
+}
+
 export function MAKE_NULL(): NullValue {
 	return { type: "null", value: null };
 }
@@ -34,4 +51,8 @@ export function MAKE_NUMBER(value = 0): NumberValue {
 
 export function MAKE_BOOL(value = true): BooleanValue {
 	return { type: "boolean", value };
+}
+
+export function MAKE_NATIVE_FUNCTION(call: FunctionCall): NativeFunctionValue {
+	return { type: "native-function", call };
 }

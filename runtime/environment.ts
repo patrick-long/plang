@@ -1,9 +1,27 @@
-import { MAKE_BOOL, MAKE_NULL, RuntimeValue } from "./values.ts";
+import {
+	MAKE_BOOL,
+	MAKE_NATIVE_FUNCTION,
+	MAKE_NULL,
+	MAKE_NUMBER,
+	RuntimeValue,
+} from "./values.ts";
 
 function initGlobalEnvironment(environment: Environment) {
 	environment.declareVariable("true", MAKE_BOOL(), true);
 	environment.declareVariable("false", MAKE_BOOL(false), true);
 	environment.declareVariable("null", MAKE_NULL(), true);
+
+	function print(args: RuntimeValue[]) {
+		console.log(...args);
+		return MAKE_NULL();
+	}
+
+	function time(_args: RuntimeValue[]) {
+		return MAKE_NUMBER(Date.now());
+	}
+
+	environment.declareVariable("print", MAKE_NATIVE_FUNCTION(print), true);
+	environment.declareVariable("time", MAKE_NATIVE_FUNCTION(time), true);
 }
 
 export default class Environment {

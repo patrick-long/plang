@@ -1,14 +1,16 @@
 import {
 	AssignmentExpression,
 	BinaryExpression,
+	CallExpression,
+	Expression,
 	Identifier,
 	ObjectLiteral,
 } from "../../ast/ast.ts";
-import { TokenType } from "../../lexer/lexer.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import {
 	MAKE_NULL,
+	NativeFunctionValue,
 	NumberValue,
 	ObjectValue,
 	RuntimeValue,
@@ -104,4 +106,23 @@ export function evaluateObjectExpression(
 	}
 
 	return objectValue;
+}
+
+export function evaluateCallExpression(
+	callExpression: CallExpression,
+	environment: Environment
+): RuntimeValue {
+	const args = callExpression.arguments.map((arg: Expression) =>
+		evaluate(arg, environment)
+	);
+	const func = evaluate(callExpression.caller, environment);
+
+	if (func.type !== "native-function") {
+		throw new Error(
+			`Cannot call value that is not a function; ${JSON.stringify(func)}`
+		);
+	}
+
+	const result = (func as NativeFunctionValue).call(args, environment);
+	return result;
 }

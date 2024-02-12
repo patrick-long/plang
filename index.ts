@@ -27,9 +27,7 @@ async function repl() {
 			}
 
 			const program = parser.produceAST(userInput);
-			const result = evaluate(program, environment);
-
-			console.log("result", result);
+			evaluate(program, environment);
 		} catch (error) {
 			console.error(error);
 			console.log("Exiting repl...");
