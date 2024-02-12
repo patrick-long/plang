@@ -14,10 +14,10 @@ async function repl() {
 	const parser = new Parser();
 
 	const environment = new Environment();
-	environment.declareVariable("x", MAKE_NUMBER(100));
-	environment.declareVariable("true", MAKE_BOOL());
-	environment.declareVariable("false", MAKE_BOOL(false));
-	environment.declareVariable("null", MAKE_NULL());
+	environment.declareVariable("x", MAKE_NUMBER(100), true);
+	environment.declareVariable("true", MAKE_BOOL(), true);
+	environment.declareVariable("false", MAKE_BOOL(false), true);
+	environment.declareVariable("null", MAKE_NULL(), true);
 
 	const rl = readline.createInterface({ input, output });
 

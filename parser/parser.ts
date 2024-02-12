@@ -5,6 +5,7 @@ import type {
 	BinaryExpression,
 	NumericLiteral,
 	Identifier,
+	VariableDeclaration,
 } from "../ast/ast.ts";
 import { tokenize, type Token, TokenType } from "../lexer/lexer.ts";
 
@@ -25,7 +26,69 @@ export default class Parser {
 	 */
 	private statement(): Statement {
 		// TODO: Function declaration statements, try/catch blocks, while loops, et cetera
-		return this.parseExpression();
+		switch (this.next().type) {
+			case TokenType.Let:
+			case TokenType.Const:
+				return this.parseVariableDeclaration();
+			default:
+				return this.parseExpression();
+		}
+	}
+
+	// LET IDENTIFIER;
+	// (LET | CONST) IDENTIFIER = EXPRESSION;
+	private parseVariableDeclaration(): Statement {
+		const statement = this.eat();
+		const isConstant = statement.type === TokenType.Const;
+		const identifier = this.expect(
+			TokenType.Identifier,
+			"Expected identifier following let or const keyword."
+		).value;
+
+		if (this.next().type === TokenType.Semicolon) {
+			this.eat(); // advance past semicolon
+
+			if (isConstant) {
+				throw new Error(
+					"Expected variable assignment following const keyword. Found ';'"
+				);
+			}
+
+			return {
+				kind: "VariableDeclaration",
+				identifier,
+				constant: false,
+			} as VariableDeclaration;
+		}
+
+		this.expect(
+			TokenType.Equals,
+			"Expected assignment operator following identifier in variable declaration."
+		);
+
+		const declaration: VariableDeclaration = {
+			kind: "VariableDeclaration",
+			value: this.parseExpression(),
+			identifier,
+			constant: isConstant,
+		};
+
+		this.expect(
+			TokenType.Semicolon,
+			"Variable declaration statement must end with semicolon"
+		);
+
+		return declaration;
+	}
+
+	private expect(tokenType: TokenType, errorMessage: string) {
+		const nextToken = this.eat();
+
+		if (nextToken.type !== tokenType) {
+			throw new Error(errorMessage);
+		}
+
+		return nextToken;
 	}
 
 	/**

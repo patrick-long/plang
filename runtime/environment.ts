@@ -3,15 +3,18 @@ import { RuntimeValue } from "./values.ts";
 export default class Environment {
 	private parent?: Environment;
 	private variables: Map<string, RuntimeValue>;
+	private constants: Set<string>;
 
 	constructor(parentEnvironment?: Environment) {
 		this.parent = parentEnvironment;
 		this.variables = new Map();
+		this.constants = new Set();
 	}
 
 	public declareVariable(
 		variableName: string,
-		value: RuntimeValue
+		value: RuntimeValue,
+		isConstant: boolean
 	): RuntimeValue {
 		if (this.variables.has(variableName)) {
 			throw new Error(
@@ -19,7 +22,12 @@ export default class Environment {
 			);
 		}
 
-		this.variables.set(variableName, value);
+		if (isConstant) {
+			this.constants.add(variableName);
+		} else {
+			this.variables.set(variableName, value);
+		}
+
 		return value;
 	}
 
@@ -28,6 +36,13 @@ export default class Environment {
 		value: RuntimeValue
 	): RuntimeValue {
 		const environment = this.resolve(variableName);
+
+		if (environment.constants.has(variableName)) {
+			throw new Error(
+				`Cannot reassign constant value. Attempting to reassign constant: '${variableName}'`
+			);
+		}
+
 		environment.variables.set(variableName, value);
 
 		return value;
