@@ -1,0 +1,4 @@
+foo()
+foo(bar())
+foo(bar(x, y))
+foo(bar(x, y)) + 5

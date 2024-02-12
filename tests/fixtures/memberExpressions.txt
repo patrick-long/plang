@@ -1,0 +1,10 @@
+let foo = 50 / 2;
+
+const obj = {
+	foo,
+	bar: true
+}
+
+foo = obj.foo()
+
+let z = obj.foo(bar(x, y)) + 5
