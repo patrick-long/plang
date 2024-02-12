@@ -9,6 +9,8 @@ import type {
 	AssignmentExpression,
 	Property,
 	ObjectLiteral,
+	CallExpression,
+	MemberExpression,
 } from "../ast/ast.ts";
 import { tokenize, type Token, TokenType } from "../lexer/lexer.ts";
 
@@ -101,14 +103,12 @@ export default class Parser {
 	}
 
 	// // Orders of Precedence (in order of parsing)
-	// ComparisonExpression
-	// LogicalExpression
-	// FunctionCall
-	// MemberExpression
 	// AssignmentExpression
+	// ObjectExpression
 	// AdditiveExpression
 	// MultiplicativeExpression
-	// UnaryExpression
+	// CallExpression
+	// MemberExpression
 	// PrimaryExpression
 
 	private parseAssignmentExpression(): Expression {
@@ -218,7 +218,7 @@ export default class Parser {
 	 * @returns {Expression} parsed primary expression
 	 */
 	private parseMultiplicativeExpression(): Expression {
-		let left = this.parsePrimaryExpression();
+		let left = this.parseCallMemberExpression();
 
 		while (
 			this.next().value === "*" ||
@@ -226,7 +226,7 @@ export default class Parser {
 			this.next().value === "%"
 		) {
 			const operator = this.eat().value;
-			const right = this.parsePrimaryExpression();
+			const right = this.parseCallMemberExpression();
 
 			left = {
 				kind: "BinaryExpression",
@@ -237,6 +237,99 @@ export default class Parser {
 		}
 
 		return left;
+	}
+
+	private parseCallMemberExpression(): Expression {
+		const member = this.parseMemberExpression();
+
+		if (this.next().type === TokenType.OpenParen) {
+			return this.parseCallExpression(member);
+		}
+
+		return member;
+	}
+
+	private parseCallExpression(caller: Expression): CallExpression {
+		let callExpression: CallExpression = {
+			kind: "CallExpression",
+			caller,
+			arguments: this.parseArguments(),
+		};
+
+		if (this.next().type === TokenType.OpenParen) {
+			callExpression = this.parseCallExpression(callExpression);
+		}
+
+		return callExpression;
+	}
+
+	private parseArguments(): Expression[] {
+		this.expect(TokenType.OpenParen, "Expected open parenthesis");
+
+		const args =
+			this.next().type === TokenType.CloseParen
+				? []
+				: this.parseArgumentsList();
+
+		this.expect(
+			TokenType.CloseParen,
+			"Missing closing parenthesis inside arguments list."
+		);
+
+		return args;
+	}
+
+	private parseArgumentsList(): Expression[] {
+		const args = [this.parseAssignmentExpression()];
+
+		while (this.next().type === TokenType.Comma && this.eat()) {
+			args.push(this.parseAssignmentExpression());
+		}
+
+		return args;
+	}
+
+	private parseMemberExpression(): Expression {
+		let object = this.parsePrimaryExpression();
+
+		while (
+			this.next().type === TokenType.Dot ||
+			this.next().type === TokenType.OpenSquareBracket
+		) {
+			let property: Expression;
+			let computed: boolean;
+			const operator = this.eat();
+
+			// Handle non-computed expressions
+			if (operator.type === TokenType.Dot) {
+				computed = false;
+				property = this.parsePrimaryExpression(); // get identifier
+
+				if (property.kind !== "Identifier") {
+					throw new Error(
+						"Cannot use dot operator without right hand side being an identifier."
+					);
+				}
+				// Handle computed expressions
+			} else {
+				computed = true;
+				property = this.parseExpression();
+
+				this.expect(
+					TokenType.CloseSquareBracket,
+					"Missing closing bracket in computed value."
+				);
+			}
+
+			object = {
+				kind: "MemberExpression",
+				object,
+				property,
+				computed,
+			} as MemberExpression;
+		}
+
+		return object;
 	}
 
 	/**

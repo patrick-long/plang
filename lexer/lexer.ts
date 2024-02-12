@@ -14,6 +14,7 @@ export enum TokenType {
 	Semicolon,
 	Colon,
 	Comma,
+	Dot,
 	OpenCurlyBracket,
 	CloseCurlyBracket,
 	OpenSquareBracket,
@@ -98,8 +99,14 @@ export function tokenize(sourceCode: string): Token[] {
 			tokens.push(token(src.shift(), TokenType.OpenCurlyBracket));
 		} else if (src[0] === "}") {
 			tokens.push(token(src.shift(), TokenType.CloseCurlyBracket));
+		} else if (src[0] === "[") {
+			tokens.push(token(src.shift(), TokenType.OpenSquareBracket));
+		} else if (src[0] === "]") {
+			tokens.push(token(src.shift(), TokenType.CloseSquareBracket));
 		} else if (src[0] === ",") {
 			tokens.push(token(src.shift(), TokenType.Comma));
+		} else if (src[0] === ".") {
+			tokens.push(token(src.shift(), TokenType.Dot));
 		} else if (
 			src[0] === "+" ||
 			src[0] === "-" ||
