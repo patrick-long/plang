@@ -1,4 +1,10 @@
-import { RuntimeValue } from "./values.ts";
+import { MAKE_BOOL, MAKE_NULL, RuntimeValue } from "./values.ts";
+
+function initEnvironment(environment: Environment) {
+	environment.declareVariable("true", MAKE_BOOL(), true);
+	environment.declareVariable("false", MAKE_BOOL(false), true);
+	environment.declareVariable("null", MAKE_NULL(), true);
+}
 
 export default class Environment {
 	private parent?: Environment;
@@ -9,6 +15,10 @@ export default class Environment {
 		this.parent = parentEnvironment;
 		this.variables = new Map();
 		this.constants = new Set();
+
+		if (!this.parent) {
+			initEnvironment(this);
+		}
 	}
 
 	public declareVariable(
