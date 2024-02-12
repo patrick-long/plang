@@ -4,7 +4,7 @@ import path from "path";
 import { tokenize } from "../lexer/lexer.ts";
 
 test("lexer should properly tokenize .txt file", () => {
-	const filePath = path.resolve(__dirname, "fixtures/lexerTest.txt");
+	const filePath = path.resolve(__dirname, "fixtures/lexer.txt");
 	const lines = fs
 		.readFileSync(filePath, { encoding: "utf8" })
 		.trim()

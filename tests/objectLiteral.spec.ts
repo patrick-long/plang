@@ -5,7 +5,7 @@ import Parser from "../parser/parser.ts";
 import Environment from "../runtime/environment.ts";
 import { evaluate } from "../runtime/interpreter.ts";
 
-test("main test file should be read and used as input to create a new program", () => {
+test("objectLiteral.txt test file should be read and used as input to create a new program", () => {
 	let result;
 	const parser = new Parser();
 	const environment = new Environment();
