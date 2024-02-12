@@ -12,6 +12,13 @@ import { MAKE_BOOL, MAKE_NULL, MAKE_NUMBER } from "./runtime/values.ts";
  */
 async function repl() {
 	const parser = new Parser();
+
+	const environment = new Environment();
+	environment.declareVariable("x", MAKE_NUMBER(100));
+	environment.declareVariable("true", MAKE_BOOL());
+	environment.declareVariable("false", MAKE_BOOL(false));
+	environment.declareVariable("null", MAKE_NULL());
+
 	const rl = readline.createInterface({ input, output });
 
 	console.log("Repl v0.1");
@@ -26,13 +33,6 @@ async function repl() {
 			}
 
 			const program = parser.produceAST(userInput);
-
-			const environment = new Environment();
-			environment.declareVariable("x", MAKE_NUMBER(100));
-			environment.declareVariable("true", MAKE_BOOL());
-			environment.declareVariable("false", MAKE_BOOL(false));
-			environment.declareVariable("null", MAKE_NULL());
-
 			console.log("program", JSON.stringify(program, null, 2));
 
 			const result = evaluate(program, environment);
