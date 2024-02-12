@@ -128,14 +128,17 @@ export default class Parser {
 	}
 
 	private parseObjectExpression(): Expression {
-		if (this.next().type !== TokenType.OpenBracket) {
+		if (this.next().type !== TokenType.OpenCurlyBracket) {
 			return this.parseAdditiveExpression();
 		}
 
 		this.eat(); // advance past open bracket
 		const properties = new Array<Property>();
 
-		while (this.notEndFile() && this.next().type !== TokenType.CloseBracket) {
+		while (
+			this.notEndFile() &&
+			this.next().type !== TokenType.CloseCurlyBracket
+		) {
 			// { key: value, key2: value2, key3, key4 }
 			const key = this.expect(
 				TokenType.Identifier,
@@ -152,7 +155,7 @@ export default class Parser {
 				});
 				continue;
 				// Allows shorthand { key }
-			} else if (this.next().type === TokenType.CloseBracket) {
+			} else if (this.next().type === TokenType.CloseCurlyBracket) {
 				properties.push({
 					kind: "Property",
 					key,
@@ -170,7 +173,7 @@ export default class Parser {
 
 			properties.push({ kind: "Property", value, key });
 
-			if (this.next().type !== TokenType.CloseBracket) {
+			if (this.next().type !== TokenType.CloseCurlyBracket) {
 				this.expect(
 					TokenType.Comma,
 					"Expected comma or closing bracket following property in object."
@@ -179,7 +182,7 @@ export default class Parser {
 		}
 
 		this.expect(
-			TokenType.CloseBracket,
+			TokenType.CloseCurlyBracket,
 			"Object literal missing closing brace. Expecting: '}'."
 		);
 

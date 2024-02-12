@@ -14,8 +14,10 @@ export enum TokenType {
 	Semicolon,
 	Colon,
 	Comma,
-	OpenBracket,
-	CloseBracket,
+	OpenCurlyBracket,
+	CloseCurlyBracket,
+	OpenSquareBracket,
+	CloseSquareBracket,
 	BinaryOperator,
 	EndFile,
 }
@@ -93,9 +95,9 @@ export function tokenize(sourceCode: string): Token[] {
 		} else if (src[0] === ")") {
 			tokens.push(token(src.shift(), TokenType.CloseParen));
 		} else if (src[0] === "{") {
-			tokens.push(token(src.shift(), TokenType.OpenBracket));
+			tokens.push(token(src.shift(), TokenType.OpenCurlyBracket));
 		} else if (src[0] === "}") {
-			tokens.push(token(src.shift(), TokenType.CloseBracket));
+			tokens.push(token(src.shift(), TokenType.CloseCurlyBracket));
 		} else if (src[0] === ",") {
 			tokens.push(token(src.shift(), TokenType.Comma));
 		} else if (
