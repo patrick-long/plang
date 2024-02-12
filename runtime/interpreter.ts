@@ -4,6 +4,7 @@ import {
 	BinaryExpression,
 	Identifier,
 	NumericLiteral,
+	ObjectLiteral,
 	Program,
 	Statement,
 	VariableDeclaration,
@@ -17,6 +18,7 @@ import {
 	evaluateBinaryExpression,
 	evaluateIdentifier,
 	evaluateAssignmentExpression,
+	evaluateObjectExpression,
 } from "./eval/expressions.ts";
 
 export function evaluate(
@@ -33,6 +35,8 @@ export function evaluate(
 			};
 
 			return numberValue;
+		case "ObjectLiteral":
+			return evaluateObjectExpression(astNode as ObjectLiteral, environment);
 		case "Identifier":
 			return evaluateIdentifier(astNode as Identifier, environment);
 		case "BinaryExpression":

@@ -2,11 +2,17 @@ import {
 	AssignmentExpression,
 	BinaryExpression,
 	Identifier,
+	ObjectLiteral,
 } from "../../ast/ast.ts";
 import { TokenType } from "../../lexer/lexer.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { MAKE_NULL, NumberValue, RuntimeValue } from "../values.ts";
+import {
+	MAKE_NULL,
+	NumberValue,
+	ObjectValue,
+	RuntimeValue,
+} from "../values.ts";
 
 export function evaluateIdentifier(
 	identifer: Identifier,
@@ -80,4 +86,22 @@ export function evaluateAssignmentExpression(
 		assigneeIdentifier,
 		evaluate(assignmentExpression.value, environment)
 	);
+}
+
+export function evaluateObjectExpression(
+	objectLiteral: ObjectLiteral,
+	environment: Environment
+): RuntimeValue {
+	const objectValue: ObjectValue = { type: "object", properties: new Map() };
+
+	for (const { key, value } of objectLiteral.properties) {
+		// If syntax is { foo }, then lookup variable "foo" in scope to set as value
+		const runtimeValue = !value
+			? environment.lookupVariable(key)
+			: evaluate(value, environment);
+
+		objectValue.properties.set(key, runtimeValue);
+	}
+
+	return objectValue;
 }

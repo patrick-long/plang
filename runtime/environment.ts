@@ -1,6 +1,6 @@
 import { MAKE_BOOL, MAKE_NULL, RuntimeValue } from "./values.ts";
 
-function initEnvironment(environment: Environment) {
+function initGlobalEnvironment(environment: Environment) {
 	environment.declareVariable("true", MAKE_BOOL(), true);
 	environment.declareVariable("false", MAKE_BOOL(false), true);
 	environment.declareVariable("null", MAKE_NULL(), true);
@@ -17,7 +17,7 @@ export default class Environment {
 		this.constants = new Set();
 
 		if (!this.parent) {
-			initEnvironment(this);
+			initGlobalEnvironment(this);
 		}
 	}
 
@@ -34,9 +34,9 @@ export default class Environment {
 
 		if (isConstant) {
 			this.constants.add(variableName);
-		} else {
-			this.variables.set(variableName, value);
 		}
+
+		this.variables.set(variableName, value);
 
 		return value;
 	}

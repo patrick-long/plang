@@ -6,12 +6,16 @@ export enum TokenType {
 	// Keywords
 	Let,
 	Const,
-	Semicolon,
 
 	// Grouping & Operators
 	Equals,
 	OpenParen,
 	CloseParen,
+	Semicolon,
+	Colon,
+	Comma,
+	OpenBracket,
+	CloseBracket,
 	BinaryOperator,
 	EndFile,
 }
@@ -63,7 +67,13 @@ function isInt(source: string): boolean {
  * @returns {boolean} boolean
  */
 function isSkippable(source: string): boolean {
-	return source === "" || source === "\n" || source === "\t" || source === " ";
+	return (
+		source === "" ||
+		source === "\n" ||
+		source === "\t" ||
+		source === " " ||
+		source === "\r"
+	);
 }
 
 /**
@@ -82,6 +92,12 @@ export function tokenize(sourceCode: string): Token[] {
 			tokens.push(token(src.shift(), TokenType.OpenParen));
 		} else if (src[0] === ")") {
 			tokens.push(token(src.shift(), TokenType.CloseParen));
+		} else if (src[0] === "{") {
+			tokens.push(token(src.shift(), TokenType.OpenBracket));
+		} else if (src[0] === "}") {
+			tokens.push(token(src.shift(), TokenType.CloseBracket));
+		} else if (src[0] === ",") {
+			tokens.push(token(src.shift(), TokenType.Comma));
 		} else if (
 			src[0] === "+" ||
 			src[0] === "-" ||
@@ -92,6 +108,8 @@ export function tokenize(sourceCode: string): Token[] {
 			tokens.push(token(src.shift(), TokenType.BinaryOperator));
 		} else if (src[0] === "=") {
 			tokens.push(token(src.shift(), TokenType.Equals));
+		} else if (src[0] === ":") {
+			tokens.push(token(src.shift(), TokenType.Colon));
 		} else if (src[0] === ";") {
 			tokens.push(token(src.shift(), TokenType.Semicolon));
 		} else {

@@ -7,6 +7,8 @@ import type {
 	Identifier,
 	VariableDeclaration,
 	AssignmentExpression,
+	Property,
+	ObjectLiteral,
 } from "../ast/ast.ts";
 import { tokenize, type Token, TokenType } from "../lexer/lexer.ts";
 
@@ -110,7 +112,7 @@ export default class Parser {
 	// PrimaryExpression
 
 	private parseAssignmentExpression(): Expression {
-		const left = this.parseAdditiveExpression();
+		const left = this.parseObjectExpression();
 
 		if (this.next().type === TokenType.Equals) {
 			this.eat(); // advance past equal sign
@@ -123,6 +125,65 @@ export default class Parser {
 		}
 
 		return left;
+	}
+
+	private parseObjectExpression(): Expression {
+		if (this.next().type !== TokenType.OpenBracket) {
+			return this.parseAdditiveExpression();
+		}
+
+		this.eat(); // advance past open bracket
+		const properties = new Array<Property>();
+
+		while (this.notEndFile() && this.next().type !== TokenType.CloseBracket) {
+			// { key: value, key2: value2, key3, key4 }
+			const key = this.expect(
+				TokenType.Identifier,
+				"Object literal key expected."
+			).value;
+
+			// Allows shorthand key: value -> key
+			if (this.next().type === TokenType.Comma) {
+				this.eat(); // advance past comma
+				properties.push({
+					kind: "Property",
+					key,
+					value: undefined,
+				});
+				continue;
+				// Allows shorthand { key }
+			} else if (this.next().type === TokenType.CloseBracket) {
+				properties.push({
+					kind: "Property",
+					key,
+					value: undefined,
+				});
+				continue;
+			}
+
+			// Allows syntax {key: value }
+			this.expect(
+				TokenType.Colon,
+				"Missing colon following identifier in Object Expression."
+			);
+			const value = this.parseExpression();
+
+			properties.push({ kind: "Property", value, key });
+
+			if (this.next().type !== TokenType.CloseBracket) {
+				this.expect(
+					TokenType.Comma,
+					"Expected comma or closing bracket following property in object."
+				);
+			}
+		}
+
+		this.expect(
+			TokenType.CloseBracket,
+			"Object literal missing closing brace. Expecting: '}'."
+		);
+
+		return { kind: "ObjectLiteral", properties } as ObjectLiteral;
 	}
 
 	/**
