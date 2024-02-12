@@ -6,6 +6,7 @@ import type {
 	NumericLiteral,
 	Identifier,
 	VariableDeclaration,
+	AssignmentExpression,
 } from "../ast/ast.ts";
 import { tokenize, type Token, TokenType } from "../lexer/lexer.ts";
 
@@ -35,8 +36,6 @@ export default class Parser {
 		}
 	}
 
-	// LET IDENTIFIER;
-	// (LET | CONST) IDENTIFIER = EXPRESSION;
 	private parseVariableDeclaration(): Statement {
 		const statement = this.eat();
 		const isConstant = statement.type === TokenType.Const;
@@ -96,7 +95,7 @@ export default class Parser {
 	 * @returns {Expression} parsed expression
 	 */
 	private parseExpression(): Expression {
-		return this.parseAdditiveExpression();
+		return this.parseAssignmentExpression();
 	}
 
 	// // Orders of Precedence (in order of parsing)
@@ -109,6 +108,22 @@ export default class Parser {
 	// MultiplicativeExpression
 	// UnaryExpression
 	// PrimaryExpression
+
+	private parseAssignmentExpression(): Expression {
+		const left = this.parseAdditiveExpression();
+
+		if (this.next().type === TokenType.Equals) {
+			this.eat(); // advance past equal sign
+			const right = this.parseAssignmentExpression();
+			return {
+				kind: "AssignmentExpression",
+				assignee: left,
+				value: right,
+			} as AssignmentExpression;
+		}
+
+		return left;
+	}
 
 	/**
 	 * Parses left side of an expression as a multiplicative expression. Recursively parses

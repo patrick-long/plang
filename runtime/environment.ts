@@ -49,7 +49,7 @@ export default class Environment {
 	}
 
 	public resolve(variableName: string): Environment {
-		if (this.variables.has(variableName)) {
+		if (this.variables.has(variableName) || this.constants.has(variableName)) {
 			return this;
 		}
 

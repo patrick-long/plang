@@ -1,4 +1,9 @@
-import { BinaryExpression, Identifier } from "../../ast/ast.ts";
+import {
+	AssignmentExpression,
+	BinaryExpression,
+	Identifier,
+} from "../../ast/ast.ts";
+import { TokenType } from "../../lexer/lexer.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import { MAKE_NULL, NumberValue, RuntimeValue } from "../values.ts";
@@ -55,4 +60,24 @@ function evaluateNumericBinaryExpression(
 	}
 
 	return result;
+}
+
+export function evaluateAssignmentExpression(
+	assignmentExpression: AssignmentExpression,
+	environment: Environment
+): RuntimeValue {
+	if (assignmentExpression.assignee.kind !== "Identifier") {
+		throw new Error(
+			`Invalid left hand side inside assignment expression: ${JSON.stringify(
+				assignmentExpression.assignee
+			)}`
+		);
+	}
+
+	const assigneeIdentifier = (assignmentExpression.assignee as Identifier)
+		.symbol;
+	return environment.assignVariable(
+		assigneeIdentifier,
+		evaluate(assignmentExpression.value, environment)
+	);
 }

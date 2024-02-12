@@ -1,5 +1,6 @@
 import { RuntimeValue, NumberValue } from "./values.ts";
 import {
+	AssignmentExpression,
 	BinaryExpression,
 	Identifier,
 	NumericLiteral,
@@ -15,6 +16,7 @@ import {
 import {
 	evaluateBinaryExpression,
 	evaluateIdentifier,
+	evaluateAssignmentExpression,
 } from "./eval/expressions.ts";
 
 export function evaluate(
@@ -38,6 +40,11 @@ export function evaluate(
 		case "VariableDeclaration":
 			return evaluateVariableDeclaration(
 				astNode as VariableDeclaration,
+				environment
+			);
+		case "AssignmentExpression":
+			return evaluateAssignmentExpression(
+				astNode as AssignmentExpression,
 				environment
 			);
 		default:
