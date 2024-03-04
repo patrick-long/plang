@@ -3,6 +3,7 @@ import {
 	AssignmentExpression,
 	BinaryExpression,
 	CallExpression,
+	FunctionDeclaration,
 	Identifier,
 	NumericLiteral,
 	ObjectLiteral,
@@ -14,6 +15,7 @@ import Environment from "./environment.ts";
 import {
 	evaluateProgram,
 	evaluateVariableDeclaration,
+	evaluateFunctionDeclaration,
 } from "./eval/statements.ts";
 import {
 	evaluateBinaryExpression,
@@ -49,6 +51,11 @@ export function evaluate(
 		case "VariableDeclaration":
 			return evaluateVariableDeclaration(
 				astNode as VariableDeclaration,
+				environment
+			);
+		case "FunctionDeclaration":
+			return evaluateFunctionDeclaration(
+				astNode as FunctionDeclaration,
 				environment
 			);
 		case "AssignmentExpression":

@@ -6,6 +6,7 @@ import type {
 	NumericLiteral,
 	Identifier,
 	VariableDeclaration,
+	FunctionDeclaration,
 	AssignmentExpression,
 	Property,
 	ObjectLiteral,
@@ -35,6 +36,8 @@ export default class Parser {
 			case TokenType.Let:
 			case TokenType.Const:
 				return this.parseVariableDeclaration();
+			case TokenType.Function:
+				return this.parseFunctionDeclaration();
 			default:
 				return this.parseExpression();
 		}
@@ -406,6 +409,55 @@ export default class Parser {
 		}
 
 		return expression;
+	}
+
+	private parseFunctionDeclaration(): Statement {
+		this.eat(); // move past function keyword
+		const name = this.expect(
+			TokenType.Identifier,
+			"Expected function name following 'function' keyword."
+		).value;
+
+		const args = this.parseArguments();
+		const params: string[] = [];
+
+		for (const arg of args) {
+			if (arg.kind !== "Identifier") {
+				throw new Error(
+					"Expected parameter to be an identifier inside of function declaration"
+				);
+			}
+
+			params.push((arg as Identifier).symbol);
+		}
+
+		this.expect(
+			TokenType.OpenCurlyBracket,
+			"Expected code block following function declaration"
+		);
+
+		const body: Statement[] = [];
+
+		while (
+			this.next().type !== TokenType.EndFile &&
+			this.next().type !== TokenType.CloseCurlyBracket
+		) {
+			body.push(this.statement());
+		}
+
+		this.expect(
+			TokenType.CloseCurlyBracket,
+			"Expected closing curly brace to signify end of code block in function declaration"
+		);
+
+		const func: FunctionDeclaration = {
+			kind: "FunctionDeclaration",
+			body,
+			name,
+			params,
+		};
+
+		return func;
 	}
 
 	/**

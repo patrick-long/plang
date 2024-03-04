@@ -9,6 +9,7 @@ import {
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import {
+	FunctionValue,
 	MAKE_NULL,
 	NativeFunctionValue,
 	NumberValue,
@@ -117,12 +118,32 @@ export function evaluateCallExpression(
 	);
 	const func = evaluate(callExpression.caller, environment);
 
-	if (func.type !== "native-function") {
-		throw new Error(
-			`Cannot call value that is not a function; ${JSON.stringify(func)}`
-		);
+	if (func.type === "native-function") {
+		const result = (func as NativeFunctionValue).call(args, environment);
+		return result;
 	}
 
-	const result = (func as NativeFunctionValue).call(args, environment);
-	return result;
+	if (func.type === "function") {
+		const fn = func as FunctionValue;
+		const scope = new Environment(fn.declarationEnv);
+
+		// Create the variables for the parameter list
+		for (let i = 0; i < fn.params.length; i++) {
+			const varName = fn.params[i];
+			scope.declareVariable(varName, args[i], false);
+		}
+
+		let result: RuntimeValue = MAKE_NULL();
+
+		// Evaluate statements within function body
+		for (const statement of fn.body) {
+			result = evaluate(statement, scope);
+		}
+
+		return result;
+	}
+
+	throw new Error(
+		`Cannot call value that is not a function; ${JSON.stringify(func)}`
+	);
 }

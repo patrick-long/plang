@@ -1,7 +1,16 @@
-import { Program, VariableDeclaration } from "../../ast/ast.ts";
+import {
+	FunctionDeclaration,
+	Program,
+	VariableDeclaration,
+} from "../../ast/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { MAKE_NULL, NullValue, RuntimeValue } from "../values.ts";
+import {
+	FunctionValue,
+	MAKE_NULL,
+	NullValue,
+	RuntimeValue,
+} from "../values.ts";
 
 export function evaluateProgram(
 	program: Program,
@@ -30,4 +39,19 @@ export function evaluateVariableDeclaration(
 		value,
 		variableDeclaration.constant
 	);
+}
+
+export function evaluateFunctionDeclaration(
+	functionDeclaration: FunctionDeclaration,
+	environment: Environment
+): RuntimeValue {
+	const func: FunctionValue = {
+		type: "function",
+		name: functionDeclaration.name,
+		params: functionDeclaration.params,
+		declarationEnv: environment,
+		body: functionDeclaration.body,
+	};
+
+	return environment.declareVariable(functionDeclaration.name, func, true);
 }

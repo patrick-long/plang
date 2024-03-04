@@ -6,6 +6,7 @@ export enum TokenType {
 	// Keywords
 	Let,
 	Const,
+	Function,
 
 	// Grouping & Operators
 	Equals,
@@ -26,6 +27,7 @@ export enum TokenType {
 const KEYWORDS: Record<string, TokenType> = {
 	let: TokenType.Let,
 	const: TokenType.Const,
+	function: TokenType.Function,
 };
 
 export interface Token {

@@ -1,0 +1,27 @@
+function adderFactory(offset) {
+	function add(x, y) {
+		x + y + offset
+	}
+
+	add
+}
+
+function sub() {
+	function add(x, y) {
+		let result = x + y;
+
+		result
+	}
+
+	let foo = 45;
+	let bar = add(10, 5);
+
+	print(foo)
+	print(bar)
+}
+
+const adder = adderFactory(1);
+print(adder)
+print(adder(10, 5))
+
+sub()
